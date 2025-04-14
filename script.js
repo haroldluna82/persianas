@@ -5,6 +5,7 @@ let selectedImages = [];
 let currentImageId = null;
 let isLoggedIn = false;
 let logoImage = localStorage.getItem('siteLogo') || 'logo.png';
+let bannerImage = localStorage.getItem('siteBanner') || '/api/placeholder/1200/300';
 const validUsers = [
     { username: 'admin', password: 'admin123' },
     { username: 'usuario', password: '12345' }
@@ -26,9 +27,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Logo
     const siteLogo = document.getElementById('site-logo');
+    const footerLogo = document.querySelector('.footer-logo-img');
+    
+    // Banner - NUEVO
+    const siteBanner = document.getElementById('site-banner');
     
     // Login
     const loginForm = document.getElementById('login-form');
+    
+    // Subida de banner - NUEVO
+    const bannerDropArea = document.getElementById('banner-drop-area');
+    const bannerFileInput = document.getElementById('banner-file-input');
+    const selectBannerBtn = document.getElementById('select-banner-btn');
+    const bannerPreviewContainer = document.getElementById('banner-preview-container');
+    const saveBannerBtn = document.getElementById('save-banner-btn');
+    let uploadedBanner = null;
     
     // Subida de logo
     const logoDropArea = document.getElementById('logo-drop-area');
@@ -45,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewContainer = document.getElementById('preview-container');
     const saveImagesBtn = document.getElementById('save-images-btn');
     const clearImagesBtn = document.getElementById('clear-images-btn');
+    const uploadCategorySelect = document.getElementById('upload-category');
+    const categoryDestination = document.getElementById('category-destination');
     
     // Pantalla de galería
     const galleryContainer = document.getElementById('gallery-container');
@@ -68,13 +83,19 @@ document.addEventListener('DOMContentLoaded', function() {
     initAuth();
     initFileUpload();
     initLogoUpload();
+    initBannerUpload(); // NUEVO
     initGallery();
     initDetails();
     initCategoryLinks();
     initUrlHandling();
+    initCategorySelect(); // NUEVO: Para actualizar la información de destino
+    initCarousel(); // Inicializar el carrusel de mensajes
     
     // Cargar logo guardado
     loadSavedLogo();
+    
+    // Cargar banner guardado - NUEVO
+    loadSavedBanner();
     
     // Verificar si hay una sesión guardada
     checkSavedSession();
@@ -234,6 +255,54 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUrl(pageId);
     }
     
+    // Inicializar el carrusel de mensajes
+    function initCarousel() {
+        const messages = document.querySelectorAll('.message');
+        const prevBtn = document.querySelector('.prev-message');
+        const nextBtn = document.querySelector('.next-message');
+        let currentMessageIndex = 0;
+        
+        function showMessage(index) {
+            messages.forEach((message, i) => {
+                message.classList.remove('active');
+                if (i === index) {
+                    message.classList.add('active');
+                }
+            });
+        }
+        
+        function nextMessage() {
+            currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+            showMessage(currentMessageIndex);
+        }
+        
+        function prevMessage() {
+            currentMessageIndex = (currentMessageIndex - 1 + messages.length) % messages.length;
+            showMessage(currentMessageIndex);
+        }
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', prevMessage);
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', nextMessage);
+        }
+        
+        // Auto rotación cada 5 segundos
+        setInterval(nextMessage, 5000);
+    }
+    
+    // NUEVO: Inicializar selector de categoría con info de destino actualizada
+    function initCategorySelect() {
+        if (uploadCategorySelect && categoryDestination) {
+            uploadCategorySelect.addEventListener('change', function() {
+                const selectedCategory = this.options[this.selectedIndex].text;
+                categoryDestination.textContent = `Categoría ${selectedCategory} y Galería`;
+            });
+        }
+    }
+    
     // Mostrar imágenes aleatorias en las categorías
     function updateCategoryImages() {
         const categoryCards = document.querySelectorAll('.category-card');
@@ -347,6 +416,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Gestión de banner - NUEVO
+    function initBannerUpload() {
+        if (bannerFileInput && selectBannerBtn) {
+            selectBannerBtn.addEventListener('click', () => {
+                bannerFileInput.click();
+            });
+            
+            bannerFileInput.addEventListener('change', () => {
+                const file = bannerFileInput.files[0];
+                if (file && file.type.match('image.*')) {
+                    previewBanner(file);
+                }
+            });
+        }
+        
+        if (bannerDropArea) {
+            setupDragAndDrop(bannerDropArea, bannerFileInput, null, previewBanner);
+        }
+        
+        if (saveBannerBtn) {
+            saveBannerBtn.addEventListener('click', () => {
+                if (uploadedBanner) {
+                    saveBanner(uploadedBanner);
+                    showNotification('Banner guardado correctamente', 'success');
+                } else {
+                    showNotification('Por favor, selecciona una imagen para el banner', 'error');
+                }
+            });
+        }
+    }
+    
+    function previewBanner(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            uploadedBanner = e.target.result;
+            
+            // Mostrar vista previa
+            bannerPreviewContainer.innerHTML = `
+                <img src="${uploadedBanner}" alt="Vista previa del banner" class="banner-preview">
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function saveBanner(bannerSrc) {
+        // Guardar en localStorage
+        localStorage.setItem('siteBanner', bannerSrc);
+        
+        // Actualizar banner en la página
+        if (siteBanner) {
+            siteBanner.src = bannerSrc;
+        }
+    }
+    
+    function loadSavedBanner() {
+        // Cargar banner guardado si existe
+        const savedBanner = localStorage.getItem('siteBanner');
+        if (savedBanner && siteBanner) {
+            siteBanner.src = savedBanner;
+        }
+    }
+    
     // Gestión de logo
     function initLogoUpload() {
         if (logoFileInput && selectLogoBtn) {
@@ -401,7 +532,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Actualizar también en el footer si existe
-        const footerLogo = document.querySelector('.footer-logo-img');
         if (footerLogo) {
             footerLogo.src = logoSrc;
         }
@@ -410,14 +540,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadSavedLogo() {
         // Cargar logo guardado si existe
         const savedLogo = localStorage.getItem('siteLogo');
-        if (savedLogo && siteLogo) {
-            siteLogo.src = savedLogo;
-            
-            // Actualizar también en el footer si existe
-            const footerLogo = document.querySelector('.footer-logo-img');
-            if (footerLogo) {
-                footerLogo.src = savedLogo;
-            }
+        if (savedLogo) {
+            if (siteLogo) siteLogo.src = savedLogo;
+            if (footerLogo) footerLogo.src = savedLogo;
         }
     }
     
@@ -551,8 +676,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (file.type.match('image.*')) {
                     callbackFn(file);
                 }
+            } else if (files.length === 1 && callbackFn === previewBanner) {
+                // Si es un solo archivo y estamos en el área del banner
+                const file = files[0];
+                if (file.type.match('image.*')) {
+                    callbackFn(file);
+                }
             } else if (previewContainer) {
-                // Si estamos en el área de subida de imágenes
+                // Si estamos en el área de subida de imágenes múltiples
                 handleFiles(files, previewContainer);
             }
         }, false);
@@ -582,14 +713,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function previewFile(file, previewContainer) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // CORRECCIÓN IMPORTANTE: Obtener correctamente la categoría seleccionada
-            // Asegúrate de que este selector apunta al elemento correcto
+            // Obtener correctamente la categoría seleccionada
             const categorySelect = document.getElementById('upload-category');
             let category = 'general'; // Valor por defecto
+            let categoryName = 'General';
             
             if (categorySelect) {
                 category = categorySelect.value;
-                console.log("Subiendo imagen con categoría:", category);
+                categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+                console.log("Subiendo imagen con categoría:", category, "(" + categoryName + ")");
             } else {
                 console.warn("No se encontró el selector de categoría!");
             }
@@ -599,6 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: file.name,
                 date: new Date().toLocaleDateString(),
                 category: category, // Asignamos la categoría correcta
+                categoryName: categoryName,
                 src: e.target.result
             };
             uploadedImages.push(imgData);
@@ -607,6 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
             previewItem.className = 'preview-item';
             previewItem.innerHTML = `
                 <img src="${imgData.src}" class="preview-img" alt="${imgData.name}">
+                <div class="preview-info">${categoryName}</div>
                 <button class="remove-btn" data-id="${imgData.id}">
                     <i class="fas fa-times"></i>
                 </button>
@@ -648,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteSelectedBtn.addEventListener('click', deleteSelectedImages);
         }
         
-        // CORRECCIÓN IMPORTANTE: Agregar evento para el filtro de galería
+        // Agregar evento para el filtro de galería
         const galleryFilter = document.getElementById('gallery-filter');
         if (galleryFilter) {
             // Asegurarse de que se dispare el evento al cambiar
@@ -725,7 +859,7 @@ document.addEventListener('DOMContentLoaded', function() {
         galleryContainer.innerHTML = '';
         selectedImages = []; // Resetear selección al actualizar
         
-        // CORRECCIÓN IMPORTANTE: Obtener correctamente el filtro actual
+        // Obtener correctamente el filtro actual
         const galleryFilter = document.getElementById('gallery-filter');
         const currentFilter = galleryFilter ? galleryFilter.value : 'all';
         
@@ -734,7 +868,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Imágenes totales:", savedImages.length);
         console.log("Categorías disponibles:", [...new Set(savedImages.map(img => img.category || 'no_category'))]);
         
-        // CORRECCIÓN IMPORTANTE: Filtrar imágenes según la categoría seleccionada
+        // Filtrar imágenes según la categoría seleccionada
         let filteredImages = savedImages;
         if (currentFilter !== 'all') {
             filteredImages = savedImages.filter(img => {
@@ -930,20 +1064,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mostrar la categoría si existe
         if (detailCategory && img.category) {
             // Convertir el valor de la categoría a un formato más legible
-            let categoryName = "General";
-            switch(img.category) {
-                case 'blackout':
-                    categoryName = "BlackOut";
-                    break;
-                case 'panel-japones':
-                    categoryName = "Panel Japonés";
-                    break;
-                case 'sheer-elegance':
-                    categoryName = "Sheer Elegance";
-                    break;
-                case 'vertical':
-                    categoryName = "Vertical";
-                    break;
+            let categoryName = img.categoryName || "General";
+            if (!img.categoryName) {
+                switch(img.category) {
+                    case 'blackout':
+                        categoryName = "BlackOut";
+                        break;
+                    case 'panel-japones':
+                        categoryName = "Panel Japonés";
+                        break;
+                    case 'sheer-elegance':
+                        categoryName = "Sheer Elegance";
+                        break;
+                    case 'vertical':
+                        categoryName = "Vertical";
+                        break;
+                }
             }
             detailCategory.textContent = categoryName;
         }

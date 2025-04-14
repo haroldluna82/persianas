@@ -78,6 +78,15 @@
 
         <!-- Landing Page de Inicio -->
         <section id="home" class="container">
+            <!-- Banner Principal - NUEVO -->
+            <div class="site-banner">
+                <img src="/api/placeholder/1200/300" alt="Banner promocional" class="banner-image" id="site-banner">
+                <div class="banner-content">
+                    <h2 class="banner-title">Transforma tus espacios con estilo</h2>
+                    <p class="banner-subtitle">Descubre nuestra colección exclusiva de persianas y cortinas</p>
+                </div>
+            </div>
+            
             <!-- Hero Banner -->
             <div class="hero-banner">
                 <div class="hero-content">
@@ -105,25 +114,25 @@
             <section id="productos" class="product-categories">
                 <h2 class="section-title">Nuestras Colecciones</h2>
                 <div class="categories">
-                    <div class="category-card">
+                    <div class="category-card" data-category="BlackOut">
                         <img src="/api/placeholder/300/200" alt="Persianas BlackOut">
                         <h3>BlackOut</h3>
                         <p>Control total de la luz y privacidad</p>
                         <a href="#" class="btn btn-small" data-category="blackout">Ver más</a>
                     </div>
-                    <div class="category-card">
+                    <div class="category-card" data-category="Panel Japonés">
                         <img src="/api/placeholder/300/200" alt="Panel Japonés">
                         <h3>Panel Japonés</h3>
                         <p>Elegancia minimalista y funcional</p>
                         <a href="#" class="btn btn-small" data-category="panel-japones">Ver más</a>
                     </div>
-                    <div class="category-card">
+                    <div class="category-card" data-category="Sheer Elegance">
                         <img src="/api/placeholder/300/200" alt="Sheer Elegance">
                         <h3>Sheer Elegance</h3>
                         <p>Luz filtrada con estilo sofisticado</p>
                         <a href="#" class="btn btn-small" data-category="sheer-elegance">Ver más</a>
                     </div>
-                    <div class="category-card">
+                    <div class="category-card" data-category="Verticales">
                         <img src="/api/placeholder/300/200" alt="Verticales">
                         <h3>Verticales</h3>
                         <p>Versatilidad para grandes ventanales</p>
@@ -246,9 +255,34 @@
         <section id="admin" class="container hidden user-only">
             <h2 class="section-title">Panel de Administración</h2>
             <div class="admin-panel">
+                <!-- Administrar Banner - NUEVO -->
+                <div class="admin-card">
+                    <h3><i class="fas fa-image"></i> Administrar Banner</h3>
+                    <p>Sube una imagen para usarla como banner principal del sitio</p>
+                    <div class="upload-area" id="banner-drop-area">
+                        <span class="upload-destination">Aparecerá en: Página de inicio</span>
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p>Arrastra una imagen aquí o</p>
+                        <input type="file" id="banner-file-input" class="file-input" accept="image/*">
+                        <button class="btn" id="select-banner-btn">
+                            <i class="fas fa-image"></i> Seleccionar imagen
+                        </button>
+                    </div>
+                    <div class="banner-preview-container" id="banner-preview-container">
+                        <!-- Aquí aparecerá la vista previa del banner -->
+                    </div>
+                    <div class="upload-info">
+                        <p><i class="fas fa-info-circle"></i> Recomendación: Usa imágenes de 1200x300 píxeles para mejores resultados</p>
+                    </div>
+                    <button class="btn" id="save-banner-btn">
+                        <i class="fas fa-save"></i> Guardar como banner
+                    </button>
+                </div>
+                
                 <div class="admin-card">
                     <h3><i class="fas fa-cloud-upload-alt"></i> Subir Imágenes</h3>
                     <div class="upload-area" id="drop-area">
+                        <span class="upload-destination">Aparecerá en: Galería y categorías</span>
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <p>Arrastra tus imágenes aquí o</p>
                         <input type="file" id="file-input" class="file-input" accept="image/*" multiple>
@@ -264,6 +298,9 @@
                             <option value="sheer-elegance">Sheer Elegance</option>
                             <option value="vertical">Vertical</option>
                         </select>
+                        <div class="category-preview">
+                            <p>Esta imagen aparecerá en: <span id="category-destination">Categoría BlackOut y Galería</span></p>
+                        </div>
                     </div>
                     <div class="preview-container" id="preview-container"></div>
                     <div class="upload-actions">
@@ -280,6 +317,7 @@
                     <h3><i class="fas fa-cog"></i> Administrar Logo</h3>
                     <p>Sube una imagen para usarla como logo del sitio</p>
                     <div class="upload-area" id="logo-drop-area">
+                        <span class="upload-destination">Aparecerá en: Menú y pie de página</span>
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                         <p>Arrastra una imagen aquí o</p>
                         <input type="file" id="logo-file-input" class="file-input" accept="image/*">
@@ -289,6 +327,9 @@
                     </div>
                     <div class="logo-preview-container" id="logo-preview-container">
                         <!-- Aquí aparecerá la vista previa del logo -->
+                    </div>
+                    <div class="upload-info">
+                        <p><i class="fas fa-info-circle"></i> Recomendación: Usa imágenes transparentes (PNG) para mejores resultados</p>
                     </div>
                     <button class="btn" id="save-logo-btn">
                         <i class="fas fa-save"></i> Guardar como logo
@@ -370,20 +411,20 @@
                 <div class="footer-column">
                     <h3>Productos</h3>
                     <ul>
-                        <li><a href="#">BlackOut</a></li>
-                        <li><a href="#">Panel Japonés</a></li>
-                        <li><a href="#">Sheer Elegance</a></li>
-                        <li><a href="#">Vertical</a></li>
+                        <li><a href="#"><i class="fas fa-angle-right"></i> BlackOut</a></li>
+                        <li><a href="#"><i class="fas fa-angle-right"></i> Panel Japonés</a></li>
+                        <li><a href="#"><i class="fas fa-angle-right"></i> Sheer Elegance</a></li>
+                        <li><a href="#"><i class="fas fa-angle-right"></i> Vertical</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h3>Navegación</h3>
                     <ul>
-                        <li><a href="#">Inicio</a></li>
-                        <li><a href="#productos">Productos</a></li>
-                        <li><a href="#nosotros">Nosotros</a></li>
-                        <li><a href="#contacto">Contacto</a></li>
-                        <li><a href="#" data-page="gallery">Galería</a></li>
+                        <li><a href="#"><i class="fas fa-angle-right"></i> Inicio</a></li>
+                        <li><a href="#productos"><i class="fas fa-angle-right"></i> Productos</a></li>
+                        <li><a href="#nosotros"><i class="fas fa-angle-right"></i> Nosotros</a></li>
+                        <li><a href="#contacto"><i class="fas fa-angle-right"></i> Contacto</a></li>
+                        <li><a href="#" data-page="gallery"><i class="fas fa-angle-right"></i> Galería</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
