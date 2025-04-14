@@ -430,7 +430,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+    
+        const bannerDropArea = document.getElementById('banner-drop-area');
+        if (bannerDropArea) {
+            const uploadDestination = bannerDropArea.querySelector('.upload-destination');
+            if (uploadDestination) {
+                uploadDestination.textContent = 'Aparecerá en: Página de inicio y carrusel superior';
+            }
+        }
         
+        // El resto de la función original
         if (bannerDropArea) {
             setupDragAndDrop(bannerDropArea, bannerFileInput, null, previewBanner);
         }
@@ -464,17 +473,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Guardar en localStorage
         localStorage.setItem('siteBanner', bannerSrc);
         
-        // Actualizar banner en la página
+        // Actualizar banner en la página de inicio
+        const siteBanner = document.getElementById('site-banner');
         if (siteBanner) {
             siteBanner.src = bannerSrc;
+        }
+        
+        // Actualizar banner en el carrusel
+        const carouselBanner = document.getElementById('carousel-banner');
+        if (carouselBanner) {
+            carouselBanner.src = bannerSrc;
         }
     }
     
     function loadSavedBanner() {
         // Cargar banner guardado si existe
         const savedBanner = localStorage.getItem('siteBanner');
-        if (savedBanner && siteBanner) {
-            siteBanner.src = savedBanner;
+        if (savedBanner) {
+            // Actualizar en la página de inicio
+            const siteBanner = document.getElementById('site-banner');
+            if (siteBanner) {
+                siteBanner.src = savedBanner;
+            }
+            
+            // Actualizar en el carrusel
+            const carouselBanner = document.getElementById('carousel-banner');
+            if (carouselBanner) {
+                carouselBanner.src = savedBanner;
+            }
         }
     }
     
@@ -1039,6 +1065,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Funcionalidad de detalles
     function initDetails() {
+        // Manejo de botones en la página de detalles
         if (backToGalleryBtn) {
             backToGalleryBtn.addEventListener('click', () => {
                 navigateTo('gallery');

@@ -1662,3 +1662,28 @@ footer:before {
         font-size: 1.5rem;
     }
 }
+
+/* Estilos para el banner en el carrusel */
+.message-banner {
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.carousel-banner-image {
+    width: 100%;
+    max-height: 60px;
+    object-fit: cover;
+}
+
+/* Mejorar los controles del carrusel para que no se superpongan con la imagen */
+.carousel-controls {
+    z-index: 2;
+}
+
+.prev-message,
+.next-message {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
